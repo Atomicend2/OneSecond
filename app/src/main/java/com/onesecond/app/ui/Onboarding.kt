@@ -95,11 +95,11 @@ fun OnboardingScreen(vm: AppViewModel) {
                             ThemeOption(
                                 title = "Light", subtitle = "Clean and bright", dark = false,
                                 selected = !vm.darkTheme, modifier = Modifier.weight(1f)
-                            ) { vm.setDarkTheme(false) }
+                            ) { vm.chooseDarkTheme(false) }
                             ThemeOption(
                                 title = "Dark", subtitle = "Frosted glass", dark = true,
                                 selected = vm.darkTheme, modifier = Modifier.weight(1f)
-                            ) { vm.setDarkTheme(true) }
+                            ) { vm.chooseDarkTheme(true) }
                         }
                     }
                 }

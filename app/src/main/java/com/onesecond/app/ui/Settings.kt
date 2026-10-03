@@ -64,7 +64,7 @@ fun SettingsScreen(vm: AppViewModel) {
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
-            vm.setReminderEnabled(true)
+            vm.changeReminderEnabled(true)
         } else {
             Toast.makeText(
                 context,
@@ -99,11 +99,11 @@ fun SettingsScreen(vm: AppViewModel) {
             ThemeOption(
                 title = "Light", subtitle = "Clean and bright", dark = false,
                 selected = !vm.darkTheme, modifier = Modifier.weight(1f)
-            ) { vm.setDarkTheme(false) }
+            ) { vm.chooseDarkTheme(false) }
             ThemeOption(
                 title = "Dark", subtitle = "Frosted glass", dark = true,
                 selected = vm.darkTheme, modifier = Modifier.weight(1f)
-            ) { vm.setDarkTheme(true) }
+            ) { vm.chooseDarkTheme(true) }
         }
         Spacer(Modifier.height(24.dp))
         SectionLabel("Daily reminder")
@@ -119,14 +119,14 @@ fun SettingsScreen(vm: AppViewModel) {
                 checked = vm.reminderEnabled,
                 onCheckedChange = { on ->
                     if (!on) {
-                        vm.setReminderEnabled(false)
+                        vm.changeReminderEnabled(false)
                     } else if (Build.VERSION.SDK_INT >= 33 &&
                         ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                         != PackageManager.PERMISSION_GRANTED
                     ) {
                         permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     } else {
-                        vm.setReminderEnabled(true)
+                        vm.changeReminderEnabled(true)
                     }
                 },
                 colors = SwitchDefaults.colors(

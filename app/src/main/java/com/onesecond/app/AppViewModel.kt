@@ -87,7 +87,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         return mode == Configuration.UI_MODE_NIGHT_YES
     }
 
-    fun setDarkTheme(dark: Boolean) {
+    fun chooseDarkTheme(dark: Boolean) {
         settings.darkMode = dark
         darkTheme = dark
     }
@@ -231,7 +231,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // ----- reminders -----
-    fun setReminderEnabled(enabled: Boolean) {
+    fun changeReminderEnabled(enabled: Boolean) {
         val app = getApplication<Application>()
         settings.reminderEnabled = enabled
         reminderEnabled = enabled
