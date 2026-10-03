@@ -2,150 +2,102 @@
 
 **Keep a little piece of today.**
 
-This is the customer-facing Android product build of One Second. It is intentionally not labeled with an internal version number in the app or customer-facing copy.
+One Second is a private daily-moment app for Android. Each day you keep one small piece of your life — a photo, a short video or a few words — and at the end of the month those moments become a story you can play back and share.
 
-## Product vision
+It is calm, private and human. No accounts, no feed, no followers, no ads, no tracking.
 
-One Second lets a person capture one small piece of their life each day — a photo, a short video, a note, or a simple mood — and later turn those pieces into a beautiful personal time capsule.
+## What the app does today (version 1.0)
 
-The product should feel calm, premium, private and human. It should not feel like an AI dashboard, developer demo, social-media clone, or generic template.
+| Area | What works |
+|---|---|
+| Onboarding | Three-screen introduction, shown once |
+| Today | Real date, a rotating daily prompt, today's moment, monthly count, and a quiet "days in a row" stat that only appears from 2 days |
+| Capture | Photo (system camera), video up to 60 s (system camera), photo/video from the library (system photo picker), or a written note. Optional caption and mood |
+| Daily rule | One moment per day. Saving again on the same day replaces it. Past days are locked (they can be deleted, never silently changed) |
+| Memories | Real calendar per month with thumbnails, previous/next month, tappable days, and a list for the month |
+| Moment page | Full photo, playable video or note; share or delete |
+| Montages | One story per month that has moments. Play it as a full-screen story (tap right/left to move) or share a finished "month card" image |
+| Reminder | Optional daily notification at a time you choose, skipped automatically if you already kept today; survives reboot |
+| Privacy | All data is stored privately on the phone. In-app privacy page, per-moment delete, and "Delete all my data" |
+| Two looks | **Light** = clean "vanilla" interface. **Dark** = glassmorphic interface (deep gradient, frosted translucent cards). Chosen in onboarding, changeable in Settings |
+| Loading | Skeleton shimmer placeholders for images, video and the capture/save step. No spinners |
+| App icon | Adaptive launcher icon + Play Store icon from the supplied icon pack |
 
-## Core customer experience
+Everything listed is functional. There are no placeholder buttons.
 
-1. First launch → simple onboarding.
-2. Account → email signup/sign-in and Google sign-in entry.
-3. Today → one clear daily prompt and one primary moment.
-4. Capture → camera, gallery or note; optional mood and caption.
-5. Memories → calendar/archive/timeline showing saved days and missed days without guilt.
-6. Month → automatic monthly story/montage from the month's moments.
-7. Share → save/share a finished monthly story.
-8. Profile → privacy, notifications, account and basic settings.
+## Deliberate product decisions
 
-## Product rules
+- **Zero running cost.** Local-first means no backend, no hosting, no API bills and no credit card needed to build or test. GitHub Actions is free for this project size.
+- **Accounts will use a free tier.** When accounts arrive, they use Firebase Authentication on the free Spark plan (no credit card), and backup stays optional.
+- **No accounts in 1.0.** A fake sign-in is worse than none, and a real one needs a backend (see "Roadmap"). Local-first also makes the privacy story simple and honest.
+- **No camera or storage permissions.** Capture uses the system camera app and the system photo picker, which is both safer and easier to get through Play review.
+- **No cloud backup (`allowBackup=false`).** Moments are private to the device until a real, opt-in sync exists.
+- **Montage = story player + shareable month card in 1.0.** Rendering a finished MP4 with music is the next big feature, not something to rush.
 
-- One primary moment per day. It can be replaced during the day, then the day becomes a memory.
-- Missing a day is allowed. No guilt mechanics.
+## Roadmap — where this is headed
+
+### Next: Montage video (v1.1)
+- Export the monthly story as a real MP4 (images and clips, transitions, captions).
+- A small royalty-free music library (needs licensed tracks — see "What we need from you").
+- Share the video directly.
+
+### Then: Accounts and backup (v1.2)
+- Optional sign-in (email with verification, Google) using a real provider such as Firebase Authentication.
+- Optional encrypted cloud backup and restore, so a new phone keeps your memories.
+- Account deletion flow (required by Google Play once accounts exist).
+- The app keeps working fully without an account.
+
+### After that: Refinement from tester feedback
+- Fix confusing flows, tune spacing, typography and motion.
+- Accessibility pass (TalkBack, font scaling, contrast).
+- Performance pass on older phones.
+- Remove what people don't use; add only what strengthens the daily-moment → monthly-story loop.
+
+### Later, only if customers want it
+- Yearly time capsule, longer or higher-quality montages, more styles and music, shared private circles, advanced export. Possible premium tier. Nothing is charged until there is real value.
+
+## Product rules (kept from the original vision)
+
+- One primary moment per day. Missing a day is allowed — no guilt mechanics.
 - Streaks are secondary and subtle.
-- The core memory experience stays private by default.
-- No public follower-count/social-feed experience in the core product.
-- No random decorative emojis.
-- No customer-facing developer/admin panels.
-- No fake claims that a backend/auth provider is connected when it is not.
-- The interface should remain polished, dark, rounded, glass-like and restrained, with cyan/violet accents rather than an orange/black AI aesthetic.
+- Private by default. No public feed or follower counts.
+- No decorative emojis, no developer/admin panels, no fake claims about connected services.
+- Two looks: Light (vanilla) and Dark (glass), both rounded and restrained. All colours live in `ui/Theme.kt`.
+- Free only: no paywall, no ads, no paid services. Everything runs on-device, so there is no server bill.
 
-## Full product roadmap
+## Project layout
 
-### Product build / testing stage
+```
+app/src/main/java/com/onesecond/app/
+  MainActivity.kt, OneSecondApp.kt, AppViewModel.kt
+  data/     Moment model, local store (JSON index + private files), settings
+  media/    Photo/video processing, month-card image renderer
+  notify/   Daily reminder scheduling and receivers
+  ui/       Theme, components, and every screen
+store/      Play Store icon and listing text
+docs/       Release checklist and privacy policy draft
+.github/workflows/android.yml   Cloud build
+```
 
-The current source is the polished UI foundation. The remaining production integrations are deliberately documented below so the next implementation pass follows the same product logic instead of turning into unrelated features.
+Stack: Kotlin, Jetpack Compose (Material 3), minSdk 26, targetSdk 35. No third-party libraries beyond AndroidX.
 
-### Functional integration stage
+## Build in the cloud (no PC needed)
 
-- Real local persistence with Room/DataStore.
-- Real media storage and media permissions.
-- Short-video capture/import.
-- Daily replacement/lock logic.
-- Calendar with actual saved/missed dates.
-- Timeline with real media thumbnails.
-- Monthly montage generation.
-- Royalty-safe music library.
-- Share/export of montages.
-- Real notifications with user controls.
-- Real account creation and sign-in.
-- Email verification.
-- Google authentication.
-- Cloud sync/backup as an optional account feature.
+Push to `main` and GitHub Actions builds the app.
 
-### Feedback/touch-up stage
+1. Repository → **Actions** → latest **Build Android** run.
+2. Under **Artifacts**, download **OneSecond-APK**, unzip it, and install `app-debug.apk` on your phone (allow "install from unknown sources" when asked).
+3. When signing secrets are added (see `docs/PLAY_STORE_RELEASE.md`), the same run also produces **OneSecond-Play-Bundle** (`.aab`) — the file you upload to Google Play.
 
-After testers use the app, feedback is applied here:
-
-- Fix confusing flows.
-- Adjust spacing, typography, animations and navigation.
-- Add requested customer-facing features that fit the product.
-- Remove features people dislike or never use.
-- Improve accessibility and performance.
-- Fix crashes and edge cases.
-- Refine onboarding and first-time-user experience.
-- Refine montage quality and sharing.
-
-This stage is intentionally a refinement pass, not a redesign of the whole product.
-
-### Release preparation
-
-- Production application ID/signing configuration.
-- Privacy policy and terms.
-- Data deletion/account deletion flow.
-- Store listing screenshots and description.
-- Content rating.
-- Production authentication/backend configuration.
-- Release build and Play Console testing tracks.
-- Crash reporting and performance monitoring.
-- Final privacy/security review.
-
-## Monetization direction
-
-The initial product should be free to test with no forced subscription and no ads in the core memory experience.
-
-Possible later premium features:
-
-- Longer/high-quality video montages.
-- More montage styles/music.
-- Yearly time capsules.
-- Larger cloud backup.
-- Shared private circles.
-- Advanced export options.
-
-Nothing is charged until there is a real customer value proposition.
-
-## Architecture direction
-
-- Android-first.
-- Kotlin + Jetpack Compose.
-- Material 3 with a custom visual system.
-- Room/DataStore for local persistence.
-- Media stored locally first.
-- Backend/auth/cloud sync added only where it provides customer value.
-- Montage generation should be efficient on real phones and avoid unnecessary server cost.
-
-## Important authentication note
-
-The current UI contains the customer-facing authentication flow, but real email verification and Google authentication require a real authentication service connection. The app must never pretend that a fake local sign-in is production authentication.
-
-For the free testing stage, local/demo state can be used to test the rest of the product. Before public release, connect the real auth provider and verify the complete account lifecycle.
-
-## Cloud APK build
-
-This repository includes `.github/workflows/android.yml`.
-
-It builds the debug APK on GitHub Actions, so the user's old PC does not need to compile the Android project.
-
-After the workflow completes:
-
-**GitHub → repository → Actions → Build Android APK → workflow run → Artifacts → OneSecond-APK**
-
-Download the artifact ZIP, extract it, and install the APK on the Android test phone.
-
-## Termux Git setup
-
-From the extracted project directory on a device with Git installed:
+## Push from Termux
 
 ```bash
 git init
 git branch -M main
 git add .
-git commit -m "Build One Second product"
-git remote add origin https://github.com/YOUR_USERNAME/one-second.git
+git commit -m "One Second 1.0"
+git remote add origin https://github.com/YOUR_USERNAME/OneSecond.git
 git push -u origin main
 ```
 
-If GitHub asks for authentication, use a GitHub personal access token rather than your account password.
-
-## What should never be added just because it is technically possible
-
-- Developer dashboards exposed to customers.
-- Fake AI features with no useful purpose.
-- Public social feed before the private-memory experience is excellent.
-- Heavy gamification that makes users feel bad for missing days.
-- Paid infrastructure that is not justified by customers.
-- Random features that do not strengthen the daily-memory → monthly-story loop.
+Use a GitHub personal access token as the password.

@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android
 
 on:
   workflow_dispatch:
@@ -8,28 +8,67 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
           packages: ''
-      - name: Install Android SDK
+
+      - name: Install Android SDK packages
         run: sdkmanager --install 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
-      - name: Build debug APK
+
+      - name: Build debug APK (for testing on a phone)
         run: gradle assembleDebug --no-daemon
-      - name: Upload APK
+
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: OneSecond-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Lint (informational)
+        continue-on-error: true
+        run: gradle lintDebug --no-daemon
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+
+      # Release bundle for Google Play. Only runs once signing secrets are added to the repo.
+      - name: Build signed release bundle (.aab)
+        if: env.KEYSTORE_BASE64 != ''
+        env:
+          ONESECOND_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          ONESECOND_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          ONESECOND_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          export ONESECOND_KEYSTORE_PATH="$RUNNER_TEMP/release.jks"
+          gradle bundleRelease --no-daemon
+
+      - name: Upload release bundle
+        if: env.KEYSTORE_BASE64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: OneSecond-Play-Bundle
+          path: app/build/outputs/bundle/release/app-release.aab

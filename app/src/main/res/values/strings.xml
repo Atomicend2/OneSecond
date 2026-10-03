@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">One Second</string>
+    <string name="reminder_channel_name">Daily reminder</string>
+    <string name="reminder_channel_desc">A gentle daily nudge to keep a moment.</string>
+</resources>
